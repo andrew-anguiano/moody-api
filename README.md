@@ -1,5 +1,9 @@
 # Moody
 
+I'm trying to learn Elixir/Phoenix/Absinthe/etc so the code in here is quite possibly wrong. Hopefully it'll improve with time 😬
+
+--
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
