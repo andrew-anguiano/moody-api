@@ -22,6 +22,21 @@ defmodule Moody.Entries do
     Repo.all(Entry)
   end
 
+  def list_entries_by_user(%User{} = user) do
+    query = from e in Entry,
+      where: [user_id: ^user.id],
+      join: s in assoc(e, :scores),
+      preload: [scores: s]
+
+    Repo.all(query)
+  end
+
+  def list_metrics_by_user(%User{} = user) do
+    query = from Metric, where: [user_id: ^user.id]
+
+    Repo.all(query)
+  end
+
   @doc """
   Gets a single entry.
 
@@ -54,40 +69,9 @@ defmodule Moody.Entries do
     %Entry{}
     |> Entry.changeset(attrs)
     |> Ecto.Changeset.put_assoc(:user, user)
-    # |> Ecto.Changeset.put_assoc(:scores, attrs.scores)
+    |> Ecto.Changeset.cast_assoc(:scores)
     |> Repo.insert()
   end
-
-  @doc """
-  Creates an entry and scores simultaneously.
-  This feels janky too... not sure the best way.
-  """
-  def create_entry(%User{} = user, scores, attrs) do
-    {:ok, entry} = create_entry(user, attrs)
-    Enum.map(scores, fn s -> create_score(entry, s) end)
-  end
-
-  def create_score(%Entry{} = entry, attrs) do
-    %Score{}
-    |> Score.changeset(attrs)
-    |> Ecto.Changeset.put_assoc(:entry, entry)
-    |> Repo.insert()
-  end
-
-  # def create_entry(%User{} = user, [%Score{}] = scores, attrs) do
-
-  #   score_ids = Enum.map(scores, fn s ->
-  #     %{Score}
-  #     |> Score.changeset(score)
-  #   end
-  #   )
-  # end
-
-  # def create_score(%User{} = user, attrs) do
-  #   %Score{}
-  #   |> Score.changeset(attrs)
-  #   |>
-  # end
 
   @doc """
   Creates a new metric for the given user
