@@ -5,7 +5,15 @@ defmodule MoodyWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/api", MoodyWeb do
+  scope "/", MoodyWeb do
     pipe_through :api
+
+    forward "/api", Absinthe.Plug,
+      schema: MoodyWeb.Schema.Schema,
+      socket: MoodyWeb.UserSocket
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL,
+      schema: MoodyWeb.Schema.Schema,
+      socket: MoodyWeb.UserSocket
   end
 end
