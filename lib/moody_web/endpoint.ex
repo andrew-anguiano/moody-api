@@ -1,5 +1,6 @@
 defmodule MoodyWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :moody
+  use Absinthe.Phoenix.Endpoint
 
   socket "/socket", MoodyWeb.UserSocket,
     websocket: true,

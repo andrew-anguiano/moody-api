@@ -1,11 +1,19 @@
 defmodule MoodyWeb.Schema.Schema do
   use Absinthe.Schema
   alias Moody.{Accounts, Entries}
+  alias MoodyWeb.Resolvers
 
   query do
     @desc "Get an entry by its ID"
     field :entry, :entry do
       arg :id, non_null :id
+
+      resolve &Resolvers.Entry.entry/3
+    end
+
+    @desc "Get a list of entries"
+    field :entries, list_of(:entry) do
+      resolve &Resolvers.Entry.entries/3
     end
   end
 
@@ -24,14 +32,12 @@ defmodule MoodyWeb.Schema.Schema do
   end
 
   object :score do
-    field :id, non_null :id
     field :metric_score, non_null :integer
     field :metric, non_null :metric
     field :entry, non_null :entry
   end
 
   object :metric do
-    field :id, non_null :id
     field :metric_name, non_null :string
     field :metric_type, non_null :metric_type
   end
