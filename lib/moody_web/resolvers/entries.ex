@@ -1,4 +1,4 @@
-defmodule MoodyWeb.Resolvers.Entry do
+defmodule MoodyWeb.Resolvers.Entries do
   alias Moody.Entries
 
   def entry(_, %{id: id}, _) do

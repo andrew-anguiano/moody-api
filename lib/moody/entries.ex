@@ -129,4 +129,18 @@ defmodule Moody.Entries do
   def change_entry(%Entry{} = entry) do
     Entry.changeset(entry, %{})
   end
+
+  # Dataloader
+  def datasource() do
+    Dataloader.Ecto.new(Repo, query: &query/2)
+  end
+
+  # def query(Entry, _args) do
+  #   Entry
+  #   |> where([e], count(e.scores) > 0)
+  # end
+
+  def query(queryable, _) do
+    queryable
+  end
 end

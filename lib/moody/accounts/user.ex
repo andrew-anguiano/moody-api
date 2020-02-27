@@ -9,6 +9,7 @@ defmodule Moody.Accounts.User do
     field :password, :string, virtual: true
 
     has_many :entries, Moody.Entries.Entry
+    has_many :metrics, Moody.Entries.Metric
 
     timestamps()
   end
@@ -29,7 +30,7 @@ defmodule Moody.Accounts.User do
 
   defp hash_password(changeset) do
     case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{password: password}} -> 
+      %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
         put_change(changeset, :password_hash, Pbkdf2.hash_pwd_salt(password))
 
       _ ->
