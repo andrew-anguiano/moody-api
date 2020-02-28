@@ -9,6 +9,16 @@ defmodule Moody.Entries do
   alias Moody.Entries.{Entry, Metric, Score}
   alias Moody.Accounts.User
 
+  def list_entries(criteria) do
+    query = from e in Entry
+
+    Enum.reduce(criteria, query, fn 
+      {:omit_empty, omit_empty}, query -> 
+        from e in query, join: s in assoc(e, :scores)
+      end)
+    |> Repo.all
+  end
+
   @doc """
   Returns the list of entries.
 
@@ -18,7 +28,7 @@ defmodule Moody.Entries do
       [%Entry{}, ...]
 
   """
-  def list_entries do
+  def list_entries() do
     Repo.all(Entry)
   end
 
@@ -52,6 +62,8 @@ defmodule Moody.Entries do
 
   """
   def get_entry!(id), do: Repo.get!(Entry, id)
+
+  def get_metric!(id), do: Repo.get!(Metric, id)
 
   @doc """
   Creates a entry.
@@ -115,6 +127,10 @@ defmodule Moody.Entries do
   """
   def delete_entry(%Entry{} = entry) do
     Repo.delete(entry)
+  end
+
+  def delete_metric(%Metric{} = metric) do
+    Repo.delete(metric)
   end
 
   @doc """

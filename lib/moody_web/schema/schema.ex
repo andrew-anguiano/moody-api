@@ -17,6 +17,8 @@ defmodule MoodyWeb.Schema.Schema do
     @desc "Get a list of entries"
     field :entries, list_of(:entry) do
       arg :limit, :integer
+      @desc "Omit entries that have no scores. An entry _is_ considered empty if it only has `notes`."
+      arg :omit_empty, :boolean
       resolve &Resolvers.Entries.entries/3
     end
 
@@ -37,12 +39,42 @@ defmodule MoodyWeb.Schema.Schema do
       resolve &Resolvers.Entries.create_entry/3
     end
 
+    @desc "Delete an entry"
+    field :delete_entry, :entry do
+      arg :entry_id, non_null :id
+
+      resolve &Resolvers.Entries.delete_entry/3
+    end
+
     @desc "Create a metric"
     field :create_metric, :metric do
       arg :metric_name, non_null :string
       arg :metric_type, non_null :metric_type
 
       resolve &Resolvers.Entries.create_metric/3
+    end
+
+    @desc "Delete a metric"
+    field :delete_metric, :metric do
+      arg :metric_id, non_null :id
+
+      resolve &Resolvers.Entries.delete_metric/3
+    end
+
+    @desc "Create a user account"
+    field :signup, :session do
+      arg :username, non_null :string
+      arg :email, non_null :string
+      arg :password, non_null :string
+
+      resolve &Resolvers.Accounts.signup/3
+    end
+
+    @desc "Sign a user in"
+    field :signin, :session do
+      arg :username, non_null :string
+      arg :password, non_null :string
+      resolve &Resolvers.Accounts.signin/3
     end
   end
 
@@ -66,6 +98,11 @@ defmodule MoodyWeb.Schema.Schema do
     field :entries, list_of(:entry),
       resolve: dataloader(Entries, :entries, args: %{scope: :user})
     field :metrics, list_of(:metric), resolve: dataloader(Entries)
+  end
+
+  object :session do
+    field :user, non_null :user
+    field :token, non_null :string
   end
 
   object :score do
@@ -92,11 +129,9 @@ defmodule MoodyWeb.Schema.Schema do
   def context(ctx) do
     ctx = Map.put(ctx, :current_user, Accounts.get_user!(1))
 
-    source = Entries.datasource()
-
     loader = Dataloader.new
-    |> Dataloader.add_source(Entries, source)
-    |> Dataloader.add_source(Accounts, source)
+    |> Dataloader.add_source(Entries, Entries.datasource)
+    |> Dataloader.add_source(Accounts, Accounts.datasource)
 
     Map.put(ctx, :loader, loader)
   end

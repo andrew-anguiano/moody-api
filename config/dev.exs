@@ -3,7 +3,7 @@ use Mix.Config
 # Configure your database
 config :moody, Moody.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "password",
   database: "moody_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,

@@ -8,6 +8,7 @@ defmodule Moody.Repo.Migrations.AddUserFields do
       add :password_hash, :string, null: false
     end
 
-    create unique_index(:users, [:email, :username])
+    create unique_index(:users, :username)
+    create unique_index(:users, :email)
   end
 end
