@@ -135,10 +135,16 @@ defmodule Moody.Entries do
     Dataloader.Ecto.new(Repo, query: &query/2)
   end
 
-  # def query(Entry, _args) do
-  #   Entry
-  #   |> where([e], count(e.scores) > 0)
-  # end
+  def query(Entry, %{limit: limit}) do
+    Entry
+    |> limit(^limit)
+  end
+
+  # Default order by
+  def query(Entry, _) do
+    Entry
+    |> order_by([desc: :inserted_at])
+  end
 
   def query(queryable, _) do
     queryable

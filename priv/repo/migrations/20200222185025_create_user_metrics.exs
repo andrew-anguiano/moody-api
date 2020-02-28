@@ -4,7 +4,7 @@ defmodule Moody.Repo.Migrations.CreateUserMetrics do
   def change do
     create table(:user_metrics) do
       add :metric_name, :string, null: false
-      add :metric_type, :string, [null: false, default: "scale"]
+      add :metric_type, :string, [null: false, default: "rating"]
       add :user_id, references(:users, on_delete: :delete_all), null: false
 
       timestamps()

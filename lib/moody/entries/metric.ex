@@ -7,7 +7,6 @@ defmodule Moody.Entries.Metric do
     field :metric_type, :string, default: "rating"
 
     belongs_to :user, Moody.Accounts.User
-    # has_many :scores, Moody.Entries.Score
 
     timestamps()
   end
