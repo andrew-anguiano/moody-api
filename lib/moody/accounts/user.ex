@@ -5,6 +5,7 @@ defmodule Moody.Accounts.User do
   schema "users" do
     field :username, :string
     field :email, :string
+    field :role, :string, default: "user"
     field :password_hash, :string
     field :password, :string, virtual: true
 
@@ -16,13 +17,14 @@ defmodule Moody.Accounts.User do
 
   @doc false
   def changeset(user, attrs) do
-    required_fields = [:username, :email, :password]
+    required_fields = [:username, :email, :password, :role]
 
     user
     |> cast(attrs, required_fields)
     |> validate_required(required_fields)
     |> validate_length(:username, min: 2)
     |> validate_length(:password, min: 8)
+    |> validate_inclusion(:role, ["user", "admin"])
     |> unique_constraint(:username)
     |> unique_constraint(:email)
     |> hash_password()

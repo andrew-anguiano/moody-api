@@ -8,7 +8,7 @@ defmodule MoodyWeb.Resolvers.Accounts do
 
   def signup(_, args, _) do
     case Accounts.create_user(args) do
-      {:ok, user} -> 
+      {:ok, user} ->
         token = MoodyWeb.AuthToken.sign(user)
 
         {:ok, %{user: user, token: token}}
@@ -17,18 +17,26 @@ defmodule MoodyWeb.Resolvers.Accounts do
           :error,
           message: "Couldn't create account!",
           details: ChangesetErrors.error_details(changeset)
-        } 
+        }
     end
   end
 
   def signin(_, %{username: username, password: password}, _) do
     case Accounts.authenticate(username, password) do
-      {:ok, user} -> 
+      {:ok, user} ->
         token = MoodyWeb.AuthToken.sign(user)
 
         {:ok, %{user: user, token: token}}
       :error ->
         {:error, "Invalid credentials."}
     end
+  end
+
+  def me(_, _, %{context: %{current_user: user}}) do
+    {:ok, user}
+  end
+
+  def me(_, _, _) do
+    {:ok, nil}
   end
 end

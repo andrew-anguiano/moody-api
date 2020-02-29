@@ -2,8 +2,20 @@ defmodule MoodyWeb.Resolvers.Entries do
   alias Moody.Entries
   alias MoodyWeb.Schema.ChangesetErrors
 
-  def entry(_, %{id: id}, _) do
-    {:ok, Entries.get_entry!(id)}
+  def entry(_, %{id: id}, %{context: %{current_user: user}}) do
+    entry = Entries.get_entry!(id)
+
+    if(entry.user_id == user.id) do
+      case Entries.get_entry!(entry) do
+        {:ok, entry} ->
+          {:ok, entry}
+      end
+    else
+        {
+          :error,
+          message: "You are not authorized to view this resource."
+        }
+    end
   end
 
   def entries(_, args, _) do

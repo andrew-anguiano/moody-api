@@ -2,31 +2,15 @@ defmodule MoodyWeb.Schema.Schema do
   use Absinthe.Schema
   alias Moody.{Accounts, Entries}
   alias MoodyWeb.Resolvers
+  alias MoodyWeb.Schema.Middleware
 
   import Absinthe.Resolution.Helpers, only: [dataloader: 1, dataloader: 3]
   import_types Absinthe.Type.Custom
 
   query do
-    @desc "Get an entry by its ID"
-    field :entry, :entry do
-      arg :id, non_null :id
-
-      resolve &Resolvers.Entries.entry/3
-    end
-
-    @desc "Get a list of entries"
-    field :entries, list_of(:entry) do
-      arg :limit, :integer
-      @desc "Omit entries that have no scores. An entry _is_ considered empty if it only has `notes`."
-      arg :omit_empty, :boolean
-      resolve &Resolvers.Entries.entries/3
-    end
-
-    @desc "Get a user by their ID"
-    field :user, :user do
-      arg :id, non_null :id
-
-      resolve &Resolvers.Accounts.user/3
+    @desc "Get current users information"
+    field :me, :user do
+      resolve &Resolvers.Accounts.me/3
     end
   end
 
@@ -36,6 +20,7 @@ defmodule MoodyWeb.Schema.Schema do
       arg :notes, :string
       arg :scores, list_of(:score_input)
 
+      middleware Middleware.Authenticate
       resolve &Resolvers.Entries.create_entry/3
     end
 
@@ -43,6 +28,7 @@ defmodule MoodyWeb.Schema.Schema do
     field :delete_entry, :entry do
       arg :entry_id, non_null :id
 
+      middleware Middleware.Authenticate
       resolve &Resolvers.Entries.delete_entry/3
     end
 
@@ -51,6 +37,7 @@ defmodule MoodyWeb.Schema.Schema do
       arg :metric_name, non_null :string
       arg :metric_type, non_null :metric_type
 
+      middleware Middleware.Authenticate
       resolve &Resolvers.Entries.create_metric/3
     end
 
@@ -58,6 +45,7 @@ defmodule MoodyWeb.Schema.Schema do
     field :delete_metric, :metric do
       arg :metric_id, non_null :id
 
+      middleware Middleware.Authenticate
       resolve &Resolvers.Entries.delete_metric/3
     end
 
@@ -95,6 +83,7 @@ defmodule MoodyWeb.Schema.Schema do
   object :user do
     field :username, non_null :string
     field :email, non_null :string
+    field :role, non_null :user_role
     field :entries, list_of(:entry),
       resolve: dataloader(Entries, :entries, args: %{scope: :user})
     field :metrics, list_of(:metric), resolve: dataloader(Entries)
@@ -117,8 +106,6 @@ defmodule MoodyWeb.Schema.Schema do
     field :metric_type, non_null :metric_type
     field :inserted_at, non_null :naive_datetime
     field :updated_at, non_null :naive_datetime
-
-    field :user, non_null(:user), resolve: dataloader(Accounts)
   end
 
   @desc "The type of metric"
@@ -126,9 +113,13 @@ defmodule MoodyWeb.Schema.Schema do
     value :rating, as: "rating", description: "A 1-5 numerical rating scale"
   end
 
-  def context(ctx) do
-    ctx = Map.put(ctx, :current_user, Accounts.get_user!(1))
+  @desc "User roles"
+  enum :user_role do
+    value :user, as: "user", description: "The standard user role."
+    value :admin, as: "admin", description: "Administrator user role."
+  end
 
+  def context(ctx) do
     loader = Dataloader.new
     |> Dataloader.add_source(Entries, Entries.datasource)
     |> Dataloader.add_source(Accounts, Accounts.datasource)

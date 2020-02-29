@@ -3,6 +3,7 @@ defmodule MoodyWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug MoodyWeb.Plugs.SetCurrentUser
   end
 
   scope "/" do
@@ -13,7 +14,6 @@ defmodule MoodyWeb.Router do
 
     forward "/graphiql", Absinthe.Plug.GraphiQL,
       schema: MoodyWeb.Schema.Schema,
-      socket: MoodyWeb.UserSocket,
-      interface: :simple
+      socket: MoodyWeb.UserSocket
   end
 end

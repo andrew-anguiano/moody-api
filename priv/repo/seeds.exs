@@ -35,9 +35,10 @@ test_user_2 =
 test_user_3 =
     %User{}
     |> User.changeset(%{
-        username: "test3",
+        username: "admin",
         email: "test3@example.com",
-        password: "password789"
+        password: "admin123",
+        role: "admin"
     })
     |> Repo.insert!
 
