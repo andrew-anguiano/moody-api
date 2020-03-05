@@ -41,5 +41,6 @@ defmodule MoodyWeb.Endpoint do
     key: "_moody_key",
     signing_salt: "jKofrlhl"
 
+  plug CORSPlug, origin: "*"
   plug MoodyWeb.Router
 end
